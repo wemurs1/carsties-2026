@@ -43,7 +43,7 @@ builder.Host.UseWolverine(opts =>
             rabbit.Password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
         })
         .DeclareExchange("auction-created", ex => ex.ExchangeType = ExchangeType.Fanout)
-        .DeclareExchange("auction-update", ex => ex.ExchangeType = ExchangeType.Fanout)
+        .DeclareExchange("auction-updated", ex => ex.ExchangeType = ExchangeType.Fanout)
         .DeclareExchange("auction-deleted", ex => ex.ExchangeType = ExchangeType.Fanout)
         .BindExchange("auction-created").ToQueue("search-auction-created")
         .BindExchange("auction-updated").ToQueue("search-auction-updated")
