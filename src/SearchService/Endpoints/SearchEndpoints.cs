@@ -1,0 +1,60 @@
+using Meilisearch;
+using SearchService.Models;
+
+namespace SearchService.Endpoints;
+
+public static class SearchEndpoints
+{
+    public static async Task<IResult> GetSearchResults(
+        MeilisearchClient client,
+        string? searchTerm,
+        string? seller,
+        string? winner,
+        string? orderBy,
+        string? filterBy,
+        int pageNumber = 1,
+        int pageSize = 10
+    )
+    {
+        var filters = new List<string>();
+        if (!string.IsNullOrEmpty((seller))) filters.Add($"seller={seller}");
+        if (!string.IsNullOrEmpty(winner)) filters.Add($"winner={winner}");
+        if (!string.IsNullOrEmpty(filterBy))
+        {
+            var now = DateTime.UtcNow;
+            var dateFilter = filterBy switch
+            {
+                "live" => $"auctionEnd > \"{now:O}\"",
+                "finished" => $"auctionEnd < \"{now:O}\"",
+                "endingSoon" => $"auctionEnd > \"{now:O}\" AND auctionEnd < \"{now.AddHours(6):O}\"",
+                _ => null
+            };
+            if (dateFilter != null) filters.Add(dateFilter);
+        }
+
+        List<string>? sort = orderBy switch
+        {
+            "make" => ["make:asc", "model:asc"],
+            "new" => ["createdAt:desc"],
+            "endingSoon" => ["actionEnd:asc"],
+            _ => null
+        };
+
+        var query = new SearchQuery
+        {
+            Page = pageNumber < 1 ? 1 : pageNumber,
+            HitsPerPage = pageSize > 50 ? 50 : pageSize,
+            Filter = filters.Count > 0 ? string.Join(" AND ", filters) : null,
+            Sort = sort 
+        };
+        var result =
+            (PaginatedSearchResult<Item>)await client.Index(("items"))
+                .SearchAsync<Item>(searchTerm ?? string.Empty, query);
+        return Results.Ok(new
+        {
+            results = result.Hits,
+            pageCount = result.TotalPages,
+            totalCount = result.TotalHits
+        });
+    }
+}
