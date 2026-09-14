@@ -1,6 +1,4 @@
-using System.Text.Json;
 using Meilisearch;
-using SearchService.Models;
 using SearchService.Services;
 
 namespace SearchService.Data;
