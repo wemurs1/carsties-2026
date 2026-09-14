@@ -5,6 +5,19 @@ namespace SearchService.Endpoints;
 
 public static class SearchEndpoints
 {
+    public static async Task<IResult> GetAuctionById(MeilisearchClient client, string id)
+    {
+        try
+        {
+            var result = await client.Index("items").GetDocumentAsync<Item>(id);
+            return Results.Ok(result);
+        }
+        catch (MeilisearchApiError e) when (e.Code == "document_not_found")
+        {
+            return Results.NotFound();
+        }
+    }
+
     public static async Task<IResult> GetSearchResults(
         MeilisearchClient client,
         string? searchTerm,
@@ -45,7 +58,7 @@ public static class SearchEndpoints
             Page = pageNumber < 1 ? 1 : pageNumber,
             HitsPerPage = pageSize > 50 ? 50 : pageSize,
             Filter = filters.Count > 0 ? string.Join(" AND ", filters) : null,
-            Sort = sort 
+            Sort = sort
         };
         var result =
             (PaginatedSearchResult<Item>)await client.Index(("items"))
