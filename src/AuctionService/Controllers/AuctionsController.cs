@@ -4,6 +4,7 @@ using AuctionService.DTOs;
 using AuctionService.Entities;
 using Contracts;
 using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Wolverine.EntityFrameworkCore;
@@ -54,13 +55,13 @@ public class AuctionsController(AuctionDbContext context, IDbContextOutbox<Aucti
         return auction;
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto dto)
     {
         var auction = dto.Adapt<Auction>();
 
-        // TODO: Add current user as seller
-        auction.Seller = "TODO: Seller";
+        auction.Seller = User.Identity?.Name ?? throw new Exception("User has not been authenticated");
 
         context.Auctions.Add(auction);
 
@@ -73,6 +74,7 @@ public class AuctionsController(AuctionDbContext context, IDbContextOutbox<Aucti
         return CreatedAtAction(nameof(GetAuction), new { id = auction.Id }, newAuction);
     }
 
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateAuction(string id, UpdateAuctionDto updateAuctionDto)
     {
@@ -86,7 +88,7 @@ public class AuctionsController(AuctionDbContext context, IDbContextOutbox<Aucti
 
         if (auction.CurrentHighBid > 0) return BadRequest("Cannot update an auction that has bids");
 
-        // TODO: Check seller is the same as the current user
+        if (auction.Seller != User.Identity?.Name) return Forbid();
 
         auction.UpdatedAt = DateTime.UtcNow;
 
@@ -97,6 +99,7 @@ public class AuctionsController(AuctionDbContext context, IDbContextOutbox<Aucti
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteAuction(string id)
     {
@@ -105,13 +108,21 @@ public class AuctionsController(AuctionDbContext context, IDbContextOutbox<Aucti
 
         if (auction.CurrentHighBid > 0) return BadRequest("Cannot delete an auction that has bids");
 
-        // TODO: Check seller is the same as the current user
+        if (auction.Seller != User.Identity?.Name) return Forbid();
 
         context.Auctions.Remove(auction);
-        
+
         await outbox.PublishAsync(auction.Adapt<AuctionDeleted>());
         await outbox.SaveChangesAndFlushMessagesAsync();
-        
+
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpPost("test")]
+    public ActionResult<string> AuthTest()
+    {
+        var name = User.Identity?.Name;
+        return Ok($"{name} has  been authenticated");
     }
 }
