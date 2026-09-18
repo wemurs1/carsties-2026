@@ -1,9 +1,9 @@
-import {Button} from "@/components/ui/button";
+import Listings from "@/features/listings/Listings";
 
 export default function Home() {
-  return (
-    <div>
-        Content goes here...
-    </div>
-  );
+    return (
+        <div>
+            <Listings/>
+        </div>
+    );
 }
