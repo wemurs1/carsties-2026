@@ -1,14 +1,29 @@
-import {Card} from "@/components/ui/card";
-import {JSX} from "react";
+import {Card, CardContent} from "@/components/ui/card";
+import Link from "next/link";
+import CountdownTimer from "@/features/listings/CountdownTimer";
+import CarImage from "@/features/listings/CarImage";
 
 type Props = {
     auction: any
 }
 
-export default function AuctionCard({auction}: Props): JSX.Element {
+export default function AuctionCard({auction}: Props) {
     return (
-        <Card className='p-4'>
-            {auction.make} {auction.model}
-        </Card>
+        <Link href={`/listings/{auction.id}`}>
+            <Card className='relative mx-auto w-full pt-0'>
+                <CarImage imageUrl={auction.imageUrl}/>
+                <div className='absolute bottom-18 left-2'>
+                    <CountdownTimer auctionEnd={auction.auctionEnd}/>
+                </div>
+                <CardContent className='flex justify-between items-center'>
+                    <h3 className='text-muted-foreground'>
+                        {auction.make} {auction.model}
+                    </h3>
+                    <p className='font-semibold text-sm'>
+                        {auction.year}
+                    </p>
+                </CardContent>
+            </Card>
+        </Link>
     );
 }
