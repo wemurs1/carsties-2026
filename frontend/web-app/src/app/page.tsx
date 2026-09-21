@@ -4,14 +4,17 @@ import {getListings} from "@/features/listings/actions";
 
 export default async function Home(props: PageProps<"/">) {
     const searchParams = await props.searchParams;
-    const page = Number(searchParams["pageNumber"] || 1);
-    const pageSize = Number(searchParams["pageSize"] || 8);
-    const data = await getListings(page, pageSize);
+
+    const data = await getListings(searchParams);
 
     return (
         <div>
             <Listings auctions={data.results}/>
-            <AppPagination page={page} pageSize={pageSize} totalCount={data.totalCount}/>
+            <AppPagination
+                page={Number(searchParams["pageNumber"]) || 1}
+                pageSize={Number(searchParams["pageSize"]) || 8}
+                totalCount={data.totalCount}
+            />
         </div>
     );
 }
