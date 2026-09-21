@@ -1,17 +1,15 @@
 import AuctionCard from "@/features/listings/AuctionCard";
+import {Auction} from "@/lib/types";
 
-async function getListings() {
-    const res = await fetch('http://localhost:6001/search');
-    if (!res.ok) throw new Error('Failed to fetch data');
-    return res.json();
+type Props = {
+    auctions: Auction[];
 }
 
-export default async function Listings() {
-    const data = await getListings();
-    
+export default async function Listings({auctions}: Props) {
+
     return (
         <div className='grid grid-cols-4 gap-6'>
-            {data.results.map((auction:any)=>(
+            {auctions.map((auction) => (
                 <AuctionCard auction={auction} key={auction.id}/>
             ))}
         </div>
