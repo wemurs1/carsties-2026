@@ -49,7 +49,7 @@ public static class SearchEndpoints
         {
             "make" => ["make:asc", "model:asc"],
             "new" => ["createdAt:desc"],
-            "endingSoon" => ["actionEnd:asc"],
+            "endingSoon" => ["auctionEnd:asc"],
             _ => null
         };
 
