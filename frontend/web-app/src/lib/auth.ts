@@ -12,7 +12,8 @@ export const auth = betterAuth({
                     clientSecret: "NotASecret",
                     discoveryUrl: "http://localhost:5001/.well-known/openid-configuration",
                     scopes: ["openid", "profile", "auctionApp"],
-                    pkce: true
+                    pkce: true,
+                    prompt: 'login'
                 }
             ]
         }),
@@ -20,14 +21,14 @@ export const auth = betterAuth({
     ]
 });
 
-export async function getCurrentUser(){
+export async function getCurrentUser() {
     try {
         const session = await auth.api.getSession({
             headers: await headers()
         });
-        
+
         if (!session) return null;
-        
+
         return session.user;
     } catch (error) {
         console.log(error);

@@ -4,6 +4,7 @@ import SearchInput from "@/components/nav/SearchInput";
 import LoginButton from "@/components/nav/LoginButton";
 import {getCurrentUser} from "@/lib/auth";
 import {UserMenu} from "@/components/nav/UserMenu";
+import {buttonVariants} from "@/components/ui/button";
 
 export default async function NavBar() {
     const user = await getCurrentUser();
@@ -18,7 +19,15 @@ export default async function NavBar() {
             {user ? (
                 <UserMenu user={user}/>
             ) : (
-                <LoginButton/>
+                <div className='flex items-center gap-2'>
+                    <LoginButton/>
+                    <Link
+                        href={`${process.env.NEXT_PUBLIC_ID_URL}/Account/Register`}
+                        className={buttonVariants({variant: 'default', size: 'lg'})}
+                    >
+                        Register
+                    </Link>
+                </div>
             )}
         </header>
     );
