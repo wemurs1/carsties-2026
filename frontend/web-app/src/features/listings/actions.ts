@@ -1,3 +1,5 @@
+'use server';
+
 import {Auction, PagedResult} from "@/lib/types";
 
 export type ListingSearchParams = {

@@ -123,6 +123,6 @@ public class AuctionsController(AuctionDbContext context, IDbContextOutbox<Aucti
     public ActionResult<string> AuthTest()
     {
         var name = User.Identity?.Name;
-        return Ok($"{name} has  been authenticated");
+        return Ok($"{name} has been authenticated");
     }
 }

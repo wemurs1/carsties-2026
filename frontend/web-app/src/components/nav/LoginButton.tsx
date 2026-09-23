@@ -4,14 +4,18 @@ import {Button} from "@/components/ui/button";
 import {auth} from "@/lib/auth";
 import {authClient} from "@/lib/auth-client";
 
-export default function LoginButton() {
+type Props = {
+    callbackUrl?: string;
+}
+
+export default function LoginButton({callbackUrl = '/'}: Props) {
     return (
         <Button
             variant="outline"
             size="lg"
-            onClick={()=>authClient.signIn.oauth2({
+            onClick={() => authClient.signIn.oauth2({
                 providerId: "duende",
-                callbackURL: '/session',
+                callbackURL: callbackUrl,
             })}
         >Login</Button>
     );

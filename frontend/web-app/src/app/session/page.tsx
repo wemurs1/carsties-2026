@@ -1,6 +1,8 @@
+'use server';
+
 import {getCurrentUser} from "@/lib/auth";
 import {Card, CardHeader, CardContent, CardFooter} from "@/components/ui/card";
-import {Button} from "@/components/ui/button";
+import AuthTestButton from "@/features/session/AuthTestButton";
 
 export default async function SessionPage() {
     const user = await getCurrentUser();
@@ -20,7 +22,7 @@ export default async function SessionPage() {
             <CardFooter className='flex flex-col items-start'>
                 <h2 className='text-xl font-semibold'>Test Api Call</h2>
                 <div className='mt-3'>
-                    <Button>Test Auth</Button>
+                    <AuthTestButton/>
                 </div>
             </CardFooter>
         </Card>
