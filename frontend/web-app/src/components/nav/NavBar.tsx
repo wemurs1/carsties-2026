@@ -1,6 +1,7 @@
 import { CarFront } from "lucide-react"
 import Link from "next/link";
 import SearchInput from "@/components/nav/SearchInput";
+import LoginButton from "@/components/nav/LoginButton";
 
 export default function NavBar() {
     return (
@@ -10,7 +11,7 @@ export default function NavBar() {
                 <div>Carsties Auctions</div>
             </Link>
             <SearchInput />
-            <div>Login</div>
+            <LoginButton />
         </header>
     );
 }

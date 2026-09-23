@@ -32,7 +32,7 @@ public static class Config
             AllowedScopes = { "openid", "profile", "auctionApp" },
             AllowedGrantTypes = GrantTypes.Code,
             ClientSecrets = { new Secret("NotASecret".Sha256()) },
-            RedirectUris = { config["ClientAppUrl"] + "/api/oauth2/callback/duende" },
+            RedirectUris = { config["ClientAppUrl"] + "/api/auth/oauth2/callback/duende" },
             AccessTokenLifetime = 3600 * 24 * 30
         }
     ];
