@@ -15,15 +15,25 @@ public static class Config
         new ApiScope("auctionApp")
     ];
 
-    public static IEnumerable<Client> Clients =>
+    public static IEnumerable<Client> Clients(IConfiguration config) =>
     [
         new()
         {
             ClientId = "bruno",
             ClientName = "Bruno Client",
-            AllowedScopes = {"openid", "profile", "auctionApp"},
-            AllowedGrantTypes =  GrantTypes.ResourceOwnerPassword,
-            ClientSecrets =  {new Secret("NotASecret".Sha256())},
+            AllowedScopes = { "openid", "profile", "auctionApp" },
+            AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+            ClientSecrets = { new Secret("NotASecret".Sha256()) },
+        },
+        new()
+        {
+            ClientId = "nextApp",
+            ClientName = "NextApp Client",
+            AllowedScopes = { "openid", "profile", "auctionApp" },
+            AllowedGrantTypes = GrantTypes.Code,
+            ClientSecrets = { new Secret("NotASecret".Sha256()) },
+            RedirectUris = { config["ClientAppUrl"] + "/api/oauth2/callback/duende" },
+            AccessTokenLifetime = 3600 * 24 * 30
         }
     ];
 }
