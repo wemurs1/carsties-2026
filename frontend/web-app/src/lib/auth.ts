@@ -3,6 +3,14 @@ import {genericOAuth, username} from "better-auth/plugins"
 import {headers} from "next/headers";
 
 export const auth = betterAuth({
+    user: {
+        additionalFields: {
+            username: {
+                type: "string",
+                required: true
+            }
+        }
+    },
     plugins: [
         genericOAuth({
             config: [
@@ -35,3 +43,5 @@ export async function getCurrentUser() {
         return null;
     }
 }
+
+export type SessionUser = typeof auth.$Infer.Session.user;

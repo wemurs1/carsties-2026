@@ -17,40 +17,57 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {User} from "better-auth";
 import Link from "next/link";
-import {useRouter} from "next/navigation";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 import {authClient} from "@/lib/auth-client";
+import {SessionUser} from "@/lib/auth";
 
 type Props = {
-    user: User
+    user: SessionUser
 }
 
 export function UserMenu({user}: Props) {
-    const router = useRouter()
-    
+    const router = useRouter();
+    const pathName = usePathname();
+    const searchParams = useSearchParams();
+
+    const setParams = (key: 'seller' | 'winner', value: string) => {
+        const params = new URLSearchParams(searchParams);
+
+        if (key === "seller" && params.has("winner")) params.delete("winner");
+        if (key === "winner" && params.has("seller")) params.delete("seller");
+
+        params.set(key, value);
+        params.set('pageNumber', '1');
+
+        const dest = pathName === '/' ? pathName : '/';
+
+        router.push(`${dest}?${params.toString()}`);
+    }
+
     const signOut = () => {
         void authClient.signOut({
             fetchOptions: {
-                onSuccess: ()=>{
+                onSuccess: () => {
                     router.push("/");
                     router.refresh();
                 }
             }
         })
     }
-    
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger render={
-                <Button variant="outline">
-                   {user.name}
-                </Button>
-            }/>
+                                      <Button variant="outline">
+                                         {user.name}
+                                     </Button>
+                                 }/>
             <DropdownMenuContent>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={()=>setParams('seller', user.username)}>
                     <UserIcon/>
                     My Auctions
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={()=>setParams('winner', user.username)}>
                     <Trophy/>
                     Auctions Won
                 </DropdownMenuItem>
