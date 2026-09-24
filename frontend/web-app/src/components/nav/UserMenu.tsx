@@ -1,7 +1,7 @@
 "use client"
 
 import {
-    CarFront,
+    CarFront, ChevronDown,
     LogOutIcon,
     SettingsIcon, Trophy,
     UserIcon,
@@ -58,22 +58,25 @@ export function UserMenu({user}: Props) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger render={
-                                      <Button variant="outline">
-                                         {user.name}
-                                     </Button>
-                                 }/>
+                <Button variant="outline">
+                    {user.name}
+                    <ChevronDown/>
+                </Button>
+            }/>
             <DropdownMenuContent>
-                <DropdownMenuItem onClick={()=>setParams('seller', user.username)}>
+                <DropdownMenuItem onClick={() => setParams('seller', user.username)}>
                     <UserIcon/>
                     My Auctions
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={()=>setParams('winner', user.username)}>
+                <DropdownMenuItem onClick={() => setParams('winner', user.username)}>
                     <Trophy/>
                     Auctions Won
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                    <CarFront/>
-                    Sell My Car
+                    <Link href="/listings/create" className='flex gap-2 items-center">'>
+                        <CarFront/>
+                        Sell My Car
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                     <Link href='/session' className='flex gap-2 items-center'>

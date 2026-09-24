@@ -4,8 +4,12 @@ import CountdownTimer from "@/features/listings/CountdownTimer";
 import CarImage from "@/features/listings/CarImage";
 import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import MetaCard from "@/features/listings/details/MetaCard";
+import {getCurrentUser} from "@/lib/auth";
+import Link from "next/link";
+import {Button, buttonVariants} from "@/components/ui/button";
 
 export default async function ListingDetailedPage(props: PageProps<'/listings/[id]'>) {
+    const user = await getCurrentUser();
     const {id} = await props.params;
     const auction = await getListingDetails(id);
 
@@ -14,9 +18,22 @@ export default async function ListingDetailedPage(props: PageProps<'/listings/[i
     return (
         <div className='flex flex-col'>
             <div className='flex justify-between'>
-                <h3 className='text-2xl font-semibold'>
-                    {auction.make} {auction.model}
-                </h3>
+                <div className='flex items-center gap-3'>
+                    <h3 className='text-2xl font-semibold'>
+                        {auction.make} {auction.model}
+                    </h3>
+                    {user?.username === auction.seller && (
+                        <>
+                            <Link
+                                href={`/listings/${auction.id}/edit`}
+                                className={buttonVariants({variant: 'outline'})}
+                            >
+                                Edit listing
+                            </Link>
+                            <Button variant='destructive'>Delete</Button>
+                        </>
+                    )}
+                </div>
                 <div className='items-center gap-3'>
                     <span className='text-muted-foreground uppercase'>
                         Time remaining
