@@ -4,7 +4,7 @@ import {Auction, PagedResult} from "@/lib/types";
 import {FieldValues} from "react-hook-form";
 import {auth} from "@/lib/auth";
 import {headers} from "next/headers";
-import {id} from "date-fns/locale";
+import {fetchWrapper} from "@/lib/fetch-wrapper";
 
 export type ListingSearchParams = {
     pageNumber?: string | string[];
@@ -18,7 +18,7 @@ export type ListingSearchParams = {
 
 const baseUrl = process.env.BASE_API_URL || 'http://localhost:6001';
 
-export async function getListings(params: ListingSearchParams = {}): Promise<PagedResult<Auction>> {
+export async function getListings(params: ListingSearchParams = {}) {
     const {pageNumber, pageSize, searchTerm, orderBy, filterBy, seller, winner} = params
     const query = new URLSearchParams({
         pageNumber: pageNumber?.toString() || String(1),
@@ -31,35 +31,16 @@ export async function getListings(params: ListingSearchParams = {}): Promise<Pag
     if (winner) query.set('winner', winner);
     if (seller) query.set('seller', seller);
 
-    const res = await fetch(`${baseUrl}/search?${query}`);
-    if (!res.ok) throw new Error('Failed to fetch data');
-    return res.json();
+    return fetchWrapper<PagedResult<Auction>>(`/search?${query}`);
 }
 
-export async function getListingDetails(id: string): Promise<Auction> {
-    const res = await fetch(`${baseUrl}/auctions/${id}`)
-    if (!res.ok) throw new Error('Failed to fetch data');
-    return res.json();
+export async function getListingDetails(id: string) {
+    return fetchWrapper<Auction>(`/auctions/${id}`)
 }
 
-export async function createListing(value: FieldValues) {
-    const {accessToken} = await auth.api.getAccessToken({
-        body: {providerId: 'duende'},
-        headers: await headers()
-    })
-
-    if (!accessToken) throw new Error('Unauthorized');
-
-    const res = await fetch(`${baseUrl}/auctions`, {
+export async function createListing(values: FieldValues) {
+    return fetchWrapper<Auction>('/auctions', {
         method: 'POST',
-        body: JSON.stringify(value),
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`
-        }
+        body: JSON.stringify(values),
     });
-
-    if (!res.ok) throw new Error('Failed to create auction');
-
-    return res.json();
 }
