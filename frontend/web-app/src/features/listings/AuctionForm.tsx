@@ -7,6 +7,7 @@ import {useRouter} from "next/navigation";
 import {useEffect, useTransition} from "react";
 import AppTextInput from "@/components/ui/app-text-input";
 import {createListing} from "@/features/listings/actions";
+import {toast} from "@/components/ui/toast";
 
 export default function AuctionForm() {
     const {control, handleSubmit, setFocus, formState: {isSubmitting}} = useForm();
@@ -15,13 +16,22 @@ export default function AuctionForm() {
 
     const onSubmit = (data: FieldValues) => {
         startTransition(async () => {
-            const newAuction = await createListing({
+            const result = await createListing({
                 ...data,
                 reservePrice: data.reservePrice || 0,
                 auctionEnd: new Date(data.auctionEnd).toISOString()
             });
 
-            router.push(`/listings/${newAuction.id}`);
+            if (!result.ok) {
+                toast.add({
+                    type: "error",
+                    title: result.status,
+                    description: result.error
+                })
+                console.log(result);
+            } else {
+                router.push(`/listings/${result.data.id}`);
+            }
         })
     }
 

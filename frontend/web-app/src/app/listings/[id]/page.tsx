@@ -11,9 +11,12 @@ import {Button, buttonVariants} from "@/components/ui/button";
 export default async function ListingDetailedPage(props: PageProps<'/listings/[id]'>) {
     const user = await getCurrentUser();
     const {id} = await props.params;
-    const auction = await getListingDetails(id);
+    const result = await getListingDetails(id);
 
-    if (!auction) return NotFound();
+    if (!result.ok && result.status === 404) return NotFound();
+    if (!result.ok) throw new Error(result.error);
+
+    const {data: auction} = result;
 
     return (
         <div className='flex flex-col'>
