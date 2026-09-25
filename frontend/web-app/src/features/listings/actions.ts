@@ -16,8 +16,6 @@ export type ListingSearchParams = {
     winner?: string;
 }
 
-const baseUrl = process.env.BASE_API_URL || 'http://localhost:6001';
-
 export async function getListings(params: ListingSearchParams = {}) {
     const {pageNumber, pageSize, searchTerm, orderBy, filterBy, seller, winner} = params
     const query = new URLSearchParams({
@@ -41,6 +39,13 @@ export async function getListingDetails(id: string) {
 export async function createListing(values: FieldValues) {
     return fetchWrapper<Auction>('/auctions', {
         method: 'POST',
+        body: JSON.stringify(values),
+    });
+}
+
+export async function updateListing(values: FieldValues) {
+    return fetchWrapper<void>(`/auctions/${values.id}`, {
+        method: 'PUT',
         body: JSON.stringify(values),
     });
 }

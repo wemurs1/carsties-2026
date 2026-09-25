@@ -6,21 +6,38 @@ import {FieldValues, useForm} from "react-hook-form";
 import {useRouter} from "next/navigation";
 import {useEffect, useTransition} from "react";
 import AppTextInput from "@/components/ui/app-text-input";
-import {createListing} from "@/features/listings/actions";
+import {createListing, updateListing} from "@/features/listings/actions";
 import {toast} from "@/components/ui/toast";
+import {Auction} from "@/lib/types";
+import {toDatetimeLocal} from "@/lib/utils";
+import {FetchResult} from "@/lib/fetch-wrapper";
 
-export default function AuctionForm() {
-    const {control, handleSubmit, setFocus, formState: {isSubmitting}} = useForm();
+type Props = {
+    auction?: Auction;
+}
+
+export default function AuctionForm({auction}: Props) {
+    const {control, handleSubmit, reset, setFocus, formState: {isSubmitting, isValid, isDirty}} = useForm();
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
 
     const onSubmit = (data: FieldValues) => {
+        const auctionValues = {
+            ...data,
+            reservePrice: data.reservePrice || 0,
+            auctionEnd: new Date(data.auctionEnd).toISOString()
+        }
+
         startTransition(async () => {
-            const result = await createListing({
-                ...data,
-                reservePrice: data.reservePrice || 0,
-                auctionEnd: new Date(data.auctionEnd).toISOString()
-            });
+            let result: FetchResult<Auction | void>;
+            let id = auction?.id ?? null;
+
+            if (auction) {
+                result = await updateListing(auctionValues);
+            } else {
+                result = await createListing(auctionValues);
+                if (result.ok && result.data) id = result.data.id;
+            }
 
             if (!result.ok) {
                 toast.add({
@@ -30,7 +47,7 @@ export default function AuctionForm() {
                 })
                 console.log(result);
             } else {
-                router.push(`/listings/${result.data.id}`);
+                router.push(`/listings/${id}`);
             }
         })
     }
@@ -38,6 +55,13 @@ export default function AuctionForm() {
     useEffect(() => {
         setFocus('make')
     }, [setFocus])
+
+    useEffect(() => {
+        if (auction) reset({
+            ...auction,
+            auctionEnd: toDatetimeLocal(auction.auctionEnd)
+        });
+    }, [auction, reset]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -103,7 +127,7 @@ export default function AuctionForm() {
                 <Button
                     variant='default'
                     type='submit'
-                    disabled={isSubmitting || isPending}
+                    disabled={isSubmitting || isPending || !isDirty || !isValid}
                 >
                     {isPending ? 'Submitting...' : 'Submit'}
                 </Button>
