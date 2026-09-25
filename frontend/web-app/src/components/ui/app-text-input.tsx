@@ -9,10 +9,11 @@ type Props = {
     rows?: number;
     placeholder?: string;
     multiline?: boolean;
+    minDate?: Date
 } & UseControllerProps
 
 export default function AppTextInput(props: Props) {
-    const {label, multiline, rows, placeholder, type, ...controllerProps} = props;
+    const {label, multiline, rows, placeholder, type, minDate, ...controllerProps} = props;
     const {field, fieldState} = useController({...controllerProps, defaultValue: ''});
 
     return (
@@ -24,8 +25,16 @@ export default function AppTextInput(props: Props) {
                 <Textarea {...field} id={props.name} rows={rows} placeholder={placeholder}
                           aria-invalid={!!fieldState.error}/>
             ) : (
-                <Input id={props.name} {...field} type={type}
-                       placeholder={placeholder} aria-invalid={!!fieldState.error}/>
+                <Input
+                    id={props.name}
+                    {...field}
+                    onChange={e => {
+                        const value = e.target.value;
+                        field.onChange(type === 'number' ? Number(value) : value)
+                    }}
+                    type={type} min={minDate?.toISOString().slice(0, 16)}
+                    placeholder={placeholder}
+                    aria-invalid={!!fieldState.error}/>
             )}
             <FieldError>{fieldState.error?.message}</FieldError>
         </Field>

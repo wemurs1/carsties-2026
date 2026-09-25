@@ -1,6 +1,10 @@
 'use server';
 
 import {Auction, PagedResult} from "@/lib/types";
+import {FieldValues} from "react-hook-form";
+import {auth} from "@/lib/auth";
+import {headers} from "next/headers";
+import {id} from "date-fns/locale";
 
 export type ListingSearchParams = {
     pageNumber?: string | string[];
@@ -35,5 +39,27 @@ export async function getListings(params: ListingSearchParams = {}): Promise<Pag
 export async function getListingDetails(id: string): Promise<Auction> {
     const res = await fetch(`${baseUrl}/auctions/${id}`)
     if (!res.ok) throw new Error('Failed to fetch data');
+    return res.json();
+}
+
+export async function createListing(value: FieldValues) {
+    const {accessToken} = await auth.api.getAccessToken({
+        body: {providerId: 'duende'},
+        headers: await headers()
+    })
+
+    if (!accessToken) throw new Error('Unauthorized');
+
+    const res = await fetch(`${baseUrl}/auctions`, {
+        method: 'POST',
+        body: JSON.stringify(value),
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`
+        }
+    });
+
+    if (!res.ok) throw new Error('Failed to create auction');
+
     return res.json();
 }

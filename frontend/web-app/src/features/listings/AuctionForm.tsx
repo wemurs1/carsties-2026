@@ -1,18 +1,28 @@
 'use client';
 
-import {Field, FieldGroup, FieldSet, FieldLabel, FieldError} from "@/components/ui/field";
-import {Input} from "@/components/ui/input";
+import {FieldGroup, FieldSet} from "@/components/ui/field";
 import {Button} from "@/components/ui/button";
 import {FieldValues, useForm} from "react-hook-form";
 import {useRouter} from "next/navigation";
-import {useEffect} from "react";
+import {useEffect, useTransition} from "react";
 import AppTextInput from "@/components/ui/app-text-input";
+import {createListing} from "@/features/listings/actions";
 
 export default function AuctionForm() {
-    const {register, control, handleSubmit, setFocus, formState: {errors}} = useForm();
+    const {control, handleSubmit, setFocus, formState: {isSubmitting}} = useForm();
     const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+
     const onSubmit = (data: FieldValues) => {
-        console.log(data);
+        startTransition(async () => {
+            const newAuction = await createListing({
+                ...data,
+                reservePrice: data.reservePrice || 0,
+                auctionEnd: new Date(data.auctionEnd).toISOString()
+            });
+
+            router.push(`/listings/${newAuction.id}`);
+        })
     }
 
     useEffect(() => {
@@ -42,23 +52,32 @@ export default function AuctionForm() {
                         <AppTextInput name='mileage' label='How many miles on the clock' control={control}
                                       placeholder='1000' rules={{required: 'Mileage is required'}} type='number'/>
 
-                        <AppTextInput name='auctionEnd' label='When do you want the auction to finish?'
-                                      control={control} rules={{required: 'Auction end date/time is required'}} type='datetime-local'
+                        <AppTextInput
+                            name='auctionEnd'
+                            label='When do you want the auction to finish?'
+                            control={control}
+                            rules={{
+                                required: 'Auction end date/time is required',
+                                validate: value => new Date(value) > new Date() || 'Auction end date must be in the future'
+                            }}
+                            type='datetime-local'
+                            minDate={new Date()}
                         />
                     </div>
                     <div className='grid grid-cols-2 gap-4'>
-                        <AppTextInput name='reservePrice' label='Do you want a reserve price? Leave empty if no reserve' control={control}
+                        <AppTextInput name='reservePrice' label='Do you want a reserve price? Leave empty if no reserve'
+                                      control={control}
                                       placeholder='0' type='number'/>
 
                         <AppTextInput name='imageUrl' label='Image URL of the car' placeholder='https://image.com'
-                                      control={control} rules={{required: 'Image URL is required'}} 
+                                      control={control} rules={{required: 'Image URL is required'}}
                         />
                     </div>
                     <AppTextInput
                         name='description'
                         label='Description'
                         control={control}
-                        placeholder='Ferrari'
+                        placeholder='Enter description'
                         multiline={true}
                         rows={4}
                         rules={{
@@ -71,7 +90,13 @@ export default function AuctionForm() {
             </FieldSet>
             <div className='flex justify-end gap-3 mt-4'>
                 <Button onClick={router.back} variant='outline'>Cancel</Button>
-                <Button variant='default' type='submit'>Submit</Button>
+                <Button
+                    variant='default'
+                    type='submit'
+                    disabled={isSubmitting || isPending}
+                >
+                    {isPending ? 'Submitting...' : 'Submit'}
+                </Button>
             </div>
         </form>
     );
