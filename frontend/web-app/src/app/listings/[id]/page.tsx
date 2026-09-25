@@ -7,6 +7,7 @@ import MetaCard from "@/features/listings/details/MetaCard";
 import {getCurrentUser} from "@/lib/auth";
 import Link from "next/link";
 import {Button, buttonVariants} from "@/components/ui/button";
+import DeleteButton from "@/features/listings/details/DeleteButton";
 
 export default async function ListingDetailedPage(props: PageProps<'/listings/[id]'>) {
     const user = await getCurrentUser();
@@ -33,7 +34,7 @@ export default async function ListingDetailedPage(props: PageProps<'/listings/[i
                             >
                                 Edit listing
                             </Link>
-                            <Button variant='destructive'>Delete</Button>
+                            <DeleteButton auction={auction}/>
                         </>
                     )}
                 </div>

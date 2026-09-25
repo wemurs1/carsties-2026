@@ -49,3 +49,9 @@ export async function updateListing(values: FieldValues) {
         body: JSON.stringify(values),
     });
 }
+
+export async function deleteListing(id: string) {
+    return fetchWrapper<void>(`/auctions/${id}`, {
+        method: 'DELETE',
+    })
+}
