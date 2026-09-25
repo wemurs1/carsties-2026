@@ -32,4 +32,13 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
+try
+{
+    DbInitializer.InitDb(app);
+}
+catch (Exception e)
+{
+    Console.WriteLine($"Error initializing bid db: {e.Message}");
+}
+
 app.Run();
