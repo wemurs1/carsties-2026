@@ -1,5 +1,7 @@
+using BidService.DTOs;
 using BidService.Models;
 using Dapper;
+using Mapster;
 
 namespace BidService.Data;
 
@@ -29,23 +31,35 @@ public class BidRepository(BidDbContext dbContext) : IBidRepository
         );
     }
 
-    public async Task<Bid> InsertBidAsync(Bid bid)
+    public async Task<BidDto> InsertBidAsync(Bid bid)
     {
         await dbContext.DbConnection.ExecuteAsync(
             """
             insert into bids (id, auctionid, bidder, bidtime, amount, bidstatus)
             values (@Id, @AuctionId, @Bidder, @BidTime, @Amount, @BidStatus)
             """, bid);
-        return bid;
+        return bid.Adapt<BidDto>();
     }
 
-    public async Task<IEnumerable<Bid>> GetBidsForAuctionAsync(string auctionId)
+    public async Task<IEnumerable<BidDto>> GetBidsForAuctionAsync(string auctionId)
     {
-        return await dbContext.DbConnection.QueryAsync<Bid>(
+        var bids = await dbContext.DbConnection.QueryAsync<Bid>(
             """
             select * from bids 
             where auctionid = @auctionId
             order by bidtime desc
             """, new { auctionId });
+        return bids.Adapt<IEnumerable<BidDto>>();
+    }
+
+    public async Task<Auction> CreateAuctionAsync(Auction auction)
+    {
+        await dbContext.DbConnection.ExecuteAsync(
+            """
+            insert into auctions (id, auctionend, seller, reserveprice)
+            values (@Id, @AuctionEnd, @Seller, @ReservePrice)
+            """, auction
+        );
+        return auction;
     }
 }

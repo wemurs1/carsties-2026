@@ -8,9 +8,11 @@ public class BidPlacedHandler
 {
     public async Task Handle(BidPlaced message, MeilisearchClient client)
     {
+        Console.WriteLine($"Handling BidPlaced: {message.Id} with {message.Amount} for auction: {message.AuctionId}");
         var auction = await client.Index("items").GetDocumentAsync<Item>(message.AuctionId)
                       ?? throw new InvalidOperationException("Could not find auction");
-        if (message.BidStatus.Contains("Accepted") && message.Amount > auction.CurrentHighBid)
+        if ((auction.CurrentHighBid == null && message.BidStatus.Contains("Accepted")) ||
+            message.BidStatus.Contains("Accepted") && message.Amount > auction.CurrentHighBid)
         {
             auction.CurrentHighBid = message.Amount;
             await client.Index("items").UpdateDocumentsAsync([auction]);

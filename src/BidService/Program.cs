@@ -1,9 +1,12 @@
-using System.Security.Claims;
 using BidService.Data;
-using BidService.Models;
+using BidService.Endpoints;
+using Contracts;
+using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Wolverine;
 using Wolverine.RabbitMQ;
+
+TypeAdapterConfig.GlobalSettings.Scan(typeof(Program).Assembly);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,51 +30,25 @@ builder.Host.UseWolverine(opts =>
             rabbit.UserName = builder.Configuration["RabbitMQ:Username"] ?? "guest";
             rabbit.Password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
         })
+        .DeclareExchange("auction-created", ex => ex.ExchangeType = ExchangeType.Fanout)
+        .DeclareExchange("bid-placed", ex => ex.ExchangeType = ExchangeType.Fanout)
+        .BindExchange("auction-created").ToQueue("bid-auction-created")
         .AutoProvision();
+
+    opts.ListenToRabbitQueue("bid-auction-created");
+    opts.PublishMessage<BidPlaced>().ToRabbitExchange("bid-placed");
+
 });
 
 builder.Services.AddScoped<IBidRepository, BidRepository>();
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.MapPost("/api/bids", async (
-    string auctionId, int amount, ClaimsPrincipal user, IBidRepository repository
-) =>
-{
-    var auction = await repository.GetAuctionAsync(auctionId);
-    if (auction == null) return Results.NotFound();
-
-    if (auction.Seller == user.Identity?.Name) return Results.BadRequest("You cannot bid on your own item");
-
-    var bid = new Bid
-    {
-        AuctionId = auctionId,
-        Amount = amount,
-        Bidder = user.Identity?.Name ?? "Unknown bidder",
-    };
-
-    if (auction.AuctionEnd < DateTime.UtcNow || auction.Finished)
-    {
-        bid.BidStatus = BidStatus.Finished;
-    }
-    else
-    {
-        bid.BidStatus = amount >= auction.ReservePrice ? BidStatus.Accepted : BidStatus.AcceptedBelowReserve;
-    }
-
-    await repository.InsertBidAsync(bid);
-
-    return Results.Ok(bid);
-}).RequireAuthorization();
-
-app.MapGet("/api/bids/{auctionId", async (string auctionId, IBidRepository repository) =>
-{
-    var bids = await repository.GetBidsForAuctionAsync(auctionId);
-
-    return Results.Ok(bids);
-});
+app.MapBidEndpoints();
 
 try
 {
