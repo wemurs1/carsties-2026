@@ -1,5 +1,6 @@
 using BidService.Data;
 using BidService.Endpoints;
+using BidService.Services;
 using Contracts;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -50,6 +51,7 @@ builder.Host.UseWolverine(opts =>
 });
 
 builder.Services.AddScoped<IBidRepository, BidRepository>();
+builder.Services.AddScoped<GrpcAuctionClient>();
 
 builder.Services.AddAuthorization();
 

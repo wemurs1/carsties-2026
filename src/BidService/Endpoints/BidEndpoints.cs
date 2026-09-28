@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using BidService.Data;
 using BidService.Models;
+using BidService.Services;
 using Contracts;
+using Grpc.Net.Client;
 using Mapster;
 using Wolverine;
 
@@ -18,10 +20,17 @@ public static class BidEndpoints
     }
 
     private static async Task<IResult> PlaceBid(string auctionId, int amount, ClaimsPrincipal user,
-        IBidRepository repository,  IMessageBus bus)
+        IBidRepository repository,  IMessageBus bus, GrpcAuctionClient grpcClient)
     {
         var auction = await repository.GetAuctionAsync(auctionId);
-        if (auction == null) return Results.NotFound();
+        if (auction == null)
+        {
+            auction = grpcClient.GetAuction(auctionId);
+            if (auction == null)
+            {
+                return Results.NotFound();
+            }
+        }
 
         if (auction.Seller == user.Identity?.Name) return Results.BadRequest("You cannot bid on your own item");
 
