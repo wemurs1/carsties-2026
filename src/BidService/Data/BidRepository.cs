@@ -62,4 +62,28 @@ public class BidRepository(BidDbContext dbContext) : IBidRepository
         );
         return auction;
     }
+
+    public async Task MarkAuctionFinishedAsync(string auctionId)
+    {
+        await dbContext.DbConnection.ExecuteAsync(
+            """
+            update auctions set finished = true where id = @auctionId
+            """, new { auctionId });
+    }
+
+    public async Task<Bid?> GetWinningBidAsync(string auctionId)
+    {
+        return await dbContext.DbConnection.QuerySingleOrDefaultAsync<Bid>(
+            """
+            select * from bids
+            where auctionid = @auctionId and bidstatus = @Accepted
+            order by amount desc
+            limit 1
+            """, new
+            {
+                auctionId,
+                Accepted = (int)BidStatus.Accepted
+            }
+        );
+    }
 }

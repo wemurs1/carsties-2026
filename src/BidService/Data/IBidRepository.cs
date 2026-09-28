@@ -10,4 +10,6 @@ public interface IBidRepository
     Task<BidDto> InsertBidAsync(Bid bid);
     Task<IEnumerable<BidDto>> GetBidsForAuctionAsync(string auctionId);
     Task<Auction> CreateAuctionAsync(Auction auction);
+    Task MarkAuctionFinishedAsync(string auctionId);
+    Task<Bid?> GetWinningBidAsync(string auctionId); 
 }
