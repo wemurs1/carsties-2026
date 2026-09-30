@@ -2,26 +2,37 @@
 
 import BidItem from "@/features/listings/details/BidItem";
 import {Bid} from "@/lib/types";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {AnimatePresence, motion} from 'motion/react'
+import {useSignalR} from "@/contexts/SignalRContext";
 
 type Props = {
-    bids: Bid[]
+    initialBids: Bid[];
+    auctionId: string;
 }
 
-export default function BidHistory({bids}: Props) {
+export default function BidHistory({initialBids, auctionId}: Props) {
+    const connection = useSignalR();
     const [newBidId, setNewBidId] = useState<string | null>(null);
-    const [prevBids, setPrevBids] = useState(bids);
+    const [bids, setBids] = useState(initialBids);
+    const bidsRef = useRef(bids);
 
-    if (bids !== prevBids) {
-        const knownIds = new Set(prevBids.map(bid => bid.id));
-        const newBid = bids.find(bid => !knownIds.has(bid.id))
+    useEffect(() => {
+        if (!connection) return;
 
-        if (newBid && prevBids.length > 0) {
-            setNewBidId(newBid.id);
+        const handleBidPlaced = (bid: Bid) => {
+            if (bid.auctionId !== auctionId) return;
+            if (bidsRef.current.some(b => b.id === bid.id)) return;
+            setBids(prev => [bid, ...prev]);
+            setNewBidId(bid.id);
         }
-        setPrevBids(bids);
-    }
+        
+        connection.on('BidPlaced', handleBidPlaced);
+        
+        return () => {
+            connection.off('BidPlaced', handleBidPlaced);
+        }
+    }, [connection, auctionId]);
 
     return (
         <div className=" overflow-y-auto space-y-4 scrollbar-thin max-h-[60vh]">

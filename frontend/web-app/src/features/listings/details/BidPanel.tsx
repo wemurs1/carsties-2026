@@ -44,7 +44,7 @@ export default async function BidPanel({bids, auction}: Props) {
                         isLoggedIn={!!user}
                     />
                 )}
-                <BidHistory bids={bids}/>
+                <BidHistory initialBids={bids} auctionId={auction.id}/>
             </CardContent>
         </Card>
 
