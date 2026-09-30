@@ -3,6 +3,7 @@
 import {useTimer} from 'react-timer-hook'
 import {useState} from "react";
 import {clsx} from "cn";
+import {useAuctionStatus} from "@/contexts/AuctionStatusContext";
 
 type Props = {
     auctionEnd: string
@@ -10,9 +11,13 @@ type Props = {
 
 export default function CountdownTimer({auctionEnd}: Props) {
     const [expired, setExpired] = useState(auctionEnd < new Date().toISOString());
+    const {setFinished} = useAuctionStatus();
     const {days, hours, minutes, seconds} = useTimer({
         expiryTimestamp: new Date(auctionEnd),
-        onExpire: () => setExpired(true),
+        onExpire: () => {
+            setExpired(true);
+            setFinished(true);
+        },
     });
 
     return (

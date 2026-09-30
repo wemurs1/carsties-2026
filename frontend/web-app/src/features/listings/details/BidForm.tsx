@@ -6,6 +6,7 @@ import {Button} from "@/components/ui/button";
 import {Controller, FieldValues, useForm} from "react-hook-form";
 import {placeBidForAuction} from "@/features/listings/actions";
 import {toast} from "@/components/ui/toast";
+import {useAuctionStatus} from "@/contexts/AuctionStatusContext";
 
 type Props = {
     auctionId: string,
@@ -14,13 +15,15 @@ type Props = {
 }
 
 export default function BidForm({auctionId, highBid, isLoggedIn}: Props) {
-    const {control, handleSubmit, setValue} = useForm({
+    const {finished} = useAuctionStatus();
+    const {control, handleSubmit} = useForm({
         values: {
             amount: highBid + 100,
         }
     })
 
     const onSubmit = async (data: FieldValues) => {
+        if (finished) return;
         const result = await placeBidForAuction(auctionId, +data.amount);
         if (!result.ok) {
             toast.add({
@@ -46,9 +49,9 @@ export default function BidForm({auctionId, highBid, isLoggedIn}: Props) {
             <Button
                 type="submit"
                 className="w-full rounded-lg"
-                disabled={!isLoggedIn}
+                disabled={!isLoggedIn || finished}
             >
-                {isLoggedIn ? 'Place bid' : 'Login to place a bid'}
+                {finished ? 'Auction finished' : isLoggedIn ? 'Place bid' : 'Login to place a bid'}
             </Button>
         </form>
     );

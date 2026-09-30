@@ -9,6 +9,7 @@ import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
 import DeleteButton from "@/features/listings/details/DeleteButton";
 import BidPanel from "@/features/listings/details/BidPanel";
+import AuctionStatusProvider from "@/contexts/AuctionStatusContext";
 
 export default async function ListingDetailedPage(props: PageProps<'/listings/[id]'>) {
     const user = await getCurrentUser();
@@ -24,48 +25,50 @@ export default async function ListingDetailedPage(props: PageProps<'/listings/[i
     const {data: bids} = bidResult;
 
     return (
-        <div className='flex flex-col'>
-            <div className='flex justify-between'>
-                <div className='flex items-center gap-3'>
-                    <h3 className='text-2xl font-semibold'>
-                        {auction.make} {auction.model}
-                    </h3>
-                    {user?.username === auction.seller && (
-                        <>
-                            <Link
-                                href={`/listings/${auction.id}/edit`}
-                                className={buttonVariants({variant: 'outline'})}
-                            >
-                                Edit listing
-                            </Link>
-                            <DeleteButton auction={auction}/>
-                        </>
-                    )}
-                </div>
-                <div className='items-center gap-3'>
+        <AuctionStatusProvider>
+            <div className='flex flex-col'>
+                <div className='flex justify-between'>
+                    <div className='flex items-center gap-3'>
+                        <h3 className='text-2xl font-semibold'>
+                            {auction.make} {auction.model}
+                        </h3>
+                        {user?.username === auction.seller && (
+                            <>
+                                <Link
+                                    href={`/listings/${auction.id}/edit`}
+                                    className={buttonVariants({variant: 'outline'})}
+                                >
+                                    Edit listing
+                                </Link>
+                                <DeleteButton auction={auction}/>
+                            </>
+                        )}
+                    </div>
+                    <div className='items-center gap-3'>
                     <span className='text-muted-foreground uppercase'>
                         Time remaining
                     </span>
-                    <CountdownTimer auctionEnd={auction.auctionEnd}/>
-                </div>
-            </div>
-            <div className='flex gap-6 mt-3'>
-                <div className='flex w-1/2 flex-col'>
-                    <CarImage imageUrl={auction.imageUrl} thumbnail={false}/>
-                    <div className='flex flex-col gap-3 mt-3'>
-                        <div className='flex gap-3'>
-                            <MetaCard label='Mileage' value={auction.mileage}/>
-                            <MetaCard label='Colour' value={auction.color}/>
-                            <MetaCard label='Year' value={auction.year}/>
-                            <MetaCard label='Seller' value={auction.seller}/>
-                        </div>
-                        <MetaCard label='Description' value={auction.description}/>
+                        <CountdownTimer auctionEnd={auction.auctionEnd}/>
                     </div>
                 </div>
-                <div className='flex w-1/2 flex-col'>
-                    <BidPanel bids={bids} auction={auction}/>
+                <div className='flex gap-6 mt-3'>
+                    <div className='flex w-1/2 flex-col'>
+                        <CarImage imageUrl={auction.imageUrl} thumbnail={false}/>
+                        <div className='flex flex-col gap-3 mt-3'>
+                            <div className='flex gap-3'>
+                                <MetaCard label='Mileage' value={auction.mileage}/>
+                                <MetaCard label='Colour' value={auction.color}/>
+                                <MetaCard label='Year' value={auction.year}/>
+                                <MetaCard label='Seller' value={auction.seller}/>
+                            </div>
+                            <MetaCard label='Description' value={auction.description}/>
+                        </div>
+                    </div>
+                    <div className='flex w-1/2 flex-col'>
+                        <BidPanel bids={bids} auction={auction}/>
+                    </div>
                 </div>
             </div>
-        </div>
+        </AuctionStatusProvider>
     );
 }
