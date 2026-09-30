@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
-        policy.AllowAnyOrigin();
+        policy.AllowCredentials();
         policy.WithOrigins(builder.Configuration["ClientApp"]!);
     });
 });

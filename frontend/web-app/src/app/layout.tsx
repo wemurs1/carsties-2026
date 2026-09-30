@@ -1,11 +1,12 @@
 import type {Metadata} from "next";
 import "./globals.css";
-import { Inter } from "next/font/google";
-import { cn } from "@/lib/utils";
+import {Inter} from "next/font/google";
+import {cn} from "@/lib/utils";
 import NavBar from "@/components/nav/NavBar";
 import {Toaster} from "@/components/ui/toast";
+import SignalRProvider from "@/contexts/SignalRContext";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({subsets: ['latin'], variable: '--font-sans'});
 
 export const metadata: Metadata = {
     title: "Carsties",
@@ -16,11 +17,13 @@ export default function RootLayout({children}: LayoutProps<"/">) {
     return (
         <html lang="en" className={cn("font-sans", inter.variable)}>
         <body className='bg-muted min-h-screen flex flex-col'>
-            <NavBar />
+        <SignalRProvider>
+            <NavBar/>
             <main className="container mx-auto mt-8 flex flex-1 flex-col">
                 {children}
             </main>
-        <Toaster/>
+            <Toaster/>
+        </SignalRProvider>
         </body>
         </html>
 
