@@ -2,6 +2,7 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {Auction, Bid} from "@/lib/types";
 import BidItem from "@/features/listings/details/BidItem";
 import BidForm from "@/features/listings/details/BidForm";
+import BidHistory from "@/features/listings/details/BidHistory";
 
 type Props = {
     bids: Bid[],
@@ -11,7 +12,7 @@ type Props = {
 export default function BidPanel({bids, auction}: Props) {
     const highBid = bids.reduce((prev, current) => {
         return prev > current.amount ? prev : current.amount
-    },0)
+    }, 0)
 
     return (
         <Card className='max-h-[80vh]'>
@@ -19,11 +20,9 @@ export default function BidPanel({bids, auction}: Props) {
                 <CardTitle>Bid panel</CardTitle>
                 <CardDescription>Minimum next bid is $200</CardDescription>
             </CardHeader>
-            <CardContent className='space-y-4 px-5 pb-5 overflow-y-auto'>
+            <CardContent className='space-y-4 px-5 pb-5'>
                 <BidForm auctionId={auction.id} highBid={highBid}/>
-                {bids.map(bid => (
-                    <BidItem bid={bid} key={bid.id}/>
-                ))}
+                <BidHistory bids={bids}/>
             </CardContent>
         </Card>
 
