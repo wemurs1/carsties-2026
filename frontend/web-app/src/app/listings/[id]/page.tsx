@@ -1,23 +1,27 @@
-import {getListingDetails} from "@/features/listings/actions";
+import {getBidsForListing, getListingDetails} from "@/features/listings/actions";
 import NotFound from "next/dist/client/components/builtin/not-found";
 import CountdownTimer from "@/features/listings/CountdownTimer";
 import CarImage from "@/features/listings/CarImage";
-import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import MetaCard from "@/features/listings/details/MetaCard";
 import {getCurrentUser} from "@/lib/auth";
 import Link from "next/link";
-import {Button, buttonVariants} from "@/components/ui/button";
+import {buttonVariants} from "@/components/ui/button";
 import DeleteButton from "@/features/listings/details/DeleteButton";
+import BidPanel from "@/features/listings/details/BidPanel";
 
 export default async function ListingDetailedPage(props: PageProps<'/listings/[id]'>) {
     const user = await getCurrentUser();
     const {id} = await props.params;
     const result = await getListingDetails(id);
+    const bidResult = await getBidsForListing(id);
 
     if (!result.ok && result.status === 404) return NotFound();
     if (!result.ok) throw new Error(result.error);
+    if (!bidResult.ok) throw new Error(bidResult.error);
 
     const {data: auction} = result;
+    const {data: bids} = bidResult;
 
     return (
         <div className='flex flex-col'>
@@ -59,12 +63,7 @@ export default async function ListingDetailedPage(props: PageProps<'/listings/[i
                     </div>
                 </div>
                 <div className='flex w-1/2 flex-col'>
-                    <Card className='max-h-[80vh]'>
-                        <CardHeader>
-                            <CardTitle>Bid panel</CardTitle>
-                            <CardDescription>Coming soon...</CardDescription>
-                        </CardHeader>
-                    </Card>
+                    <BidPanel bids={bids}/>
                 </div>
             </div>
         </div>

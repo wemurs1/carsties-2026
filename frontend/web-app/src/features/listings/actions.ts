@@ -1,9 +1,7 @@
 'use server';
 
-import {Auction, PagedResult} from "@/lib/types";
+import {Auction, Bid, PagedResult} from "@/lib/types";
 import {FieldValues} from "react-hook-form";
-import {auth} from "@/lib/auth";
-import {headers} from "next/headers";
 import {fetchWrapper} from "@/lib/fetch-wrapper";
 
 export type ListingSearchParams = {
@@ -53,5 +51,11 @@ export async function updateListing(values: FieldValues) {
 export async function deleteListing(id: string) {
     return fetchWrapper<void>(`/auctions/${id}`, {
         method: 'DELETE',
+    })
+}
+
+export async function getBidsForListing(id: string){
+    return fetchWrapper<Bid[]>(`/bids/${id}`, {
+        method: 'GET',
     })
 }
