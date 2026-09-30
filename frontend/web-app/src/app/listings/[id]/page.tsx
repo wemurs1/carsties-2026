@@ -63,7 +63,7 @@ export default async function ListingDetailedPage(props: PageProps<'/listings/[i
                     </div>
                 </div>
                 <div className='flex w-1/2 flex-col'>
-                    <BidPanel bids={bids}/>
+                    <BidPanel bids={bids} auction={auction}/>
                 </div>
             </div>
         </div>
