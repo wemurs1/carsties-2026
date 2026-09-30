@@ -18,7 +18,7 @@ export const auth = betterAuth({
                     providerId: "duende",
                     clientId: "nextApp",
                     clientSecret: "NotASecret",
-                    discoveryUrl: "http://localhost:5001/.well-known/openid-configuration",
+                    discoveryUrl: process.env.NEXT_PUBLIC_ID_URL + "/.well-known/openid-configuration",
                     scopes: ["openid", "profile", "auctionApp"],
                     pkce: true,
                     prompt: 'login'
