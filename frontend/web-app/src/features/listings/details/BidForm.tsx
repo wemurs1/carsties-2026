@@ -8,11 +8,12 @@ import {placeBidForAuction} from "@/features/listings/actions";
 import {toast} from "@/components/ui/toast";
 
 type Props = {
-    auctionId: string;
-    highBid: number;
+    auctionId: string,
+    highBid: number,
+    isLoggedIn: boolean
 }
 
-export default function BidForm({auctionId, highBid}: Props) {
+export default function BidForm({auctionId, highBid, isLoggedIn}: Props) {
     const {control, handleSubmit, setValue} = useForm({
         values: {
             amount: highBid + 100,
@@ -47,8 +48,9 @@ export default function BidForm({auctionId, highBid}: Props) {
             <Button
                 type="submit"
                 className="w-full rounded-lg"
+                disabled={!isLoggedIn}
             >
-                Place bid
+                {isLoggedIn ? 'Place bid' : 'Login to place a bid'}
             </Button>
         </form>
     );
