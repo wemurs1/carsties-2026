@@ -19,12 +19,13 @@ export default function AuctionCard({auction}: Props) {
                 <Badge className="absolute top-2 right-2" variant='secondary'>
                     <User/>
                     {auction.seller}
-                </Badge> 
+                </Badge>
                 <div className='absolute bottom-18 left-2'>
                     <CountdownTimer auctionEnd={auction.auctionEnd}/>
                 </div>
                 <div className='absolute top-2 left-2'>
-                    <CurrentHighBidBadge reservePrice={auction.reservePrice} amount={auction.currentHighBid}/>
+                    <CurrentHighBidBadge reservePrice={auction.reservePrice} amount={auction.currentHighBid}
+                                         auctionId={auction.id}/>
                 </div>
                 <CardContent className='flex justify-between items-center'>
                     <h3 className='text-muted-foreground'>

@@ -28,8 +28,6 @@ export default function BidForm({auctionId, highBid, isLoggedIn}: Props) {
                 title: result.status,
                 description: result.error
             })
-        } else {
-            setValue('amount', highBid + 100)
         }
     }
 
