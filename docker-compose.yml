@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres "]
+      test: [ "CMD-SHELL", "pg_isready -U postgres " ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,7 +22,7 @@ services:
     volumes:
       - meilisearch_data:/meili_data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:7700/health" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -151,6 +151,20 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+  web-app:
+    image: stuartwmurraydev/web-app:latest
+    build:
+      context: ./frontend/web-app
+      dockerfile: Dockerfile
+    volumes:
+      - /var/lib/data
+    environment:
+      - BETTER_AUTH_SECRET=7SD9v9QzzgX1YzDdnlWKYm9fhKCa9J1x
+      - BETTER_AUTH_URL=http://localhost:3000
+      - BASE_API_URL=http://gateway-svc
+      - ID_URL_INTERNAL=http://identity-svc
+    ports:
+      - "3000:3000"
 volumes:
   postgres_data:
   meilisearch_data:
