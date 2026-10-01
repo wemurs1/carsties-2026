@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+docker-compose.yml
+local-deploy/dev-certs/carsties.test.crt
+local-deploy/dev-certs/carsties.test.key

@@ -95,8 +95,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DefaultConnection=Server=postgres:5432;User Id=postgres;Password=postgrespw;Database=identity
-      - IdentityServer__IssuerUri=http://id.carsties.test
-      - ClientAppUrl=http://app.carsties.test
+      - IdentityServer__IssuerUri=https://id.carsties.test
+      - ClientAppUrl=https://app.carsties.test
       - VIRTUAL_HOST=id.carsties.test
     ports:
       - "5001:80"
@@ -162,7 +162,7 @@ services:
       - /var/lib/data
     environment:
       - BETTER_AUTH_SECRET=7SD9v9QzzgX1YzDdnlWKYm9fhKCa9J1x
-      - BETTER_AUTH_URL=http://app.carsties.test
+      - BETTER_AUTH_URL=https://app.carsties.test
       - BASE_API_URL=http://gateway-svc
       - ID_URL_INTERNAL=http://identity-svc
       - VIRTUAL_HOST=app.carsties.test
@@ -172,9 +172,11 @@ services:
     image: nginxproxy/nginx-proxy
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./local-deploy/proxy-buffers.conf:/etc/nginx/conf.d/proxy-buffers.conf:ro
+      - ./local-deploy/dev-certs:/etc/nginx/certs
 volumes:
   postgres_data:
   meilisearch_data:
