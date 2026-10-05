@@ -1,6 +1,5 @@
 using AuctionService.Data;
 using AuctionService.Entities;
-using AuctionService.Handlers;
 using Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Wolverine.Tracking;
