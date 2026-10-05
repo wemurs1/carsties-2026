@@ -15,7 +15,7 @@ public class AppFixture : IAsyncLifetime
             .UntilHttpRequestIsSucceeded(request => request.ForPath("/health").ForPort(7700)))
         .Build();
 
-    public IAlbaHost Host { get; private set; }
+    public IAlbaHost Host { get; private set; } = null!;
 
     public async Task InitializeAsync()
     {
