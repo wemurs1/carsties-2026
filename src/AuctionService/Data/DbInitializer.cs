@@ -8,14 +8,14 @@ public class DbInitializer
     public static void InitDb(WebApplication app)
     {
         using var scope = app.Services.CreateScope();
-        SeedData(scope.ServiceProvider.GetRequiredService<AuctionDbContext>(),app);
+        SeedData(scope.ServiceProvider.GetRequiredService<AuctionDbContext>(), app);
     }
 
     private static void SeedData(AuctionDbContext context, WebApplication app)
     {
         context.Database.Migrate();
 
-        if (context.Auctions.Any()||app.Environment.IsEnvironment("Test"))
+        if (context.Auctions.Any() || app.Environment.IsEnvironment("Test"))
         {
             Console.WriteLine("Database already exists");
             return;
