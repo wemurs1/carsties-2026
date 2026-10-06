@@ -29,6 +29,7 @@ spec:
           args:
             - --providers.kubernetesgateway
             - --entrypoints.web.address=:80
+            - --entrypoints.websecure.address=:443
           ports:
             - containerPort: 80
               protocol: TCP
@@ -45,5 +46,9 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
+      name: web
+    - port: 443
+      targetPort: 443
+      name: websecure
   type: LoadBalancer
   

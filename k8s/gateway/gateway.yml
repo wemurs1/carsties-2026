@@ -8,6 +8,17 @@ spec:
 
   # Only Routes from the same namespace are allowed.
   listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: carsties-tls
+      allowedRoutes:
+        namespaces:
+          from: Same
+            
     - name: http
       protocol: HTTP
       port: 80

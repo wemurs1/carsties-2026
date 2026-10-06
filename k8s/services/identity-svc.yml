@@ -47,7 +47,7 @@ spec:
             - name: ConnectionStrings__DefaultConnection
               value: Server=postgres:5432;User Id=postgres;Password=$(POSTGRES_PASSWORD);Database=identity
             - name: IdentityServer__IssuerUri
-              value: http://identity-svc
+              value: https://id.carsties.test
             - name: ClientAppUrl
               value: https://app.carsties.test
           volumeMounts:
