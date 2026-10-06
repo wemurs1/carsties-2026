@@ -27,8 +27,7 @@ public class SearchEndpointTests(AppFixture fixture) : IAsyncLifetime
         x.Model = "Delta";
         x.Seller = "bob";
     });
-
-
+    
     public async Task InitializeAsync()
     {
         var client = fixture.Host.Services.GetRequiredService<MeilisearchClient>();

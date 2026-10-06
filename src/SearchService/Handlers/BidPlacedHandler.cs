@@ -15,7 +15,8 @@ public class BidPlacedHandler
             message.BidStatus.Contains("Accepted") && message.Amount > auction.CurrentHighBid)
         {
             auction.CurrentHighBid = message.Amount;
-            await client.Index("items").UpdateDocumentsAsync([auction]);
+            var updateTask = await client.Index("items").UpdateDocumentsAsync([auction]);
+            await client.WaitForTaskAsync(updateTask.TaskUid);
         }
     }
 }
