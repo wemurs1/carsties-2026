@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auction-svc
+  labels:
+    app: auction-svc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auction-svc
+  template:
+    metadata:
+      name: auction-svc
+      labels:
+        app: auction-svc
+    spec:
+      containers:
+        - name: auction-svc
+          image: stuartmurraydev/auction-svc:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+              protocol: TCP
+              name: http
+            - containerPort: 81
+              name: grpc
+          env:
+            - name: RabbitMQ__Host
+              value: rabbitmq
+            - name: RabbitMQ__Username
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq-user
+                  name: carsties-secrets
+            - name: RabbitMQ__Password
+              valueFrom:
+                secretKeyRef:
+                  key: rabbitmq-password
+                  name: carsties-secrets
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: postgres-password
+                  name: carsties-secrets
+            - name: ConnectionStrings__DefaultConnection
+              value: Server=postgres:5432;User Id=postgres;Password=$(POSTGRES_PASSWORD);Database=auctions
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auction-svc
+spec:
+  selector:
+    app: auction-svc
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: http
+    - port: 81
+      targetPort: 81
+      name: grpc
+  type: ClusterIP
+  
