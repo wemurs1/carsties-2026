@@ -1,38 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auction-svc
+  name: search-svc
   labels:
-    app: auction-svc
+    app: search-svc
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: auction-svc
+      app: search-svc
   template:
     metadata:
-      name: auction-svc
+      name: search-svc
       labels:
-        app: auction-svc
+        app: search-svc
     spec:
       initContainers:
-        - name: wait-for-postgres
+        - name: wait-for-meilisearch
           image: busybox
-          command: ["sh", "-c", "until nc -z postgres 5432; do echo waiting for postgres; sleep 2; done" ]
+          command: ["sh", "-c", "until wget -q -O- http://meilisearch:7700/health; do echo waiting for meilisearch; sleep 2; done" ]
         - name: wait-for-rabbitmq
           image: busybox
           command: ["sh", "-c", "until nc -z rabbitmq 5672; do echo waiting for rabbitmq; sleep 2; done" ]
       containers:
-        - name: auction-svc
-          image: stuartmurraydev/auction-svc:latest
+        - name: search-svc
+          image: stuartmurraydev/search-svc:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
               protocol: TCP
-              name: http
-            - containerPort: 81
-              name: grpc
           env:
+            - name: ASPNETCORE_URLS
+              value: http://+:80
             - name: RabbitMQ__Host
               value: rabbitmq
             - name: RabbitMQ__Username
@@ -45,21 +44,15 @@ spec:
                 secretKeyRef:
                   key: rabbitmq-password
                   name: carsties-secrets
-            - name: POSTGRES_PASSWORD
+            - name: AuctionSvcUrl
+              value: http://auction-svc
+            - name: Meilisearch__Url
+              value: http://meilisearch:7700
+            - name: Meilisearch__ApiKey
               valueFrom:
                 secretKeyRef:
-                  key: postgres-password
+                  key: meilisearch-master-key
                   name: carsties-secrets
-            - name: ConnectionStrings__DefaultConnection
-              value: Server=postgres:5432;User Id=postgres;Password=$(POSTGRES_PASSWORD);Database=auctions
-            - name: IdentityServiceUrl
-              value: http://identity-svc
-            - name: Kestrel__Endpoints__Http__Url
-              value: http://+:80
-            - name: Kestrel__Endpoints__gRPC__Url
-              value: http://+:81
-            - name: Kestrel__Endpoints__gRPC__Protocols
-              value: Http2
           readinessProbe:
             tcpSocket:
               port: 80
@@ -73,17 +66,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: auction-svc
+  name: search-svc
 spec:
   selector:
-    app: auction-svc
+    app: search-svc
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
-      name: http
-    - port: 81
-      targetPort: 81
-      name: grpc
   type: ClusterIP
   
